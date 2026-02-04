@@ -298,7 +298,12 @@ app.post('/leads/delete-by-title', async (req, res) => {
   }
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+// Health check endpoint for Replit
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// Start server (bind to 0.0.0.0 for Replit)
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
 });
