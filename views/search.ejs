@@ -1,0 +1,102 @@
+<%- include('partials/header', { page: 'search' }) %>
+
+<div class="p-6">
+  <!-- Filter bar -->
+  <div class="bg-gray-800 rounded-lg p-6 mb-6">
+    <form action="/search" method="POST" id="searchForm">
+      <div class="flex flex-wrap gap-4 items-end">
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-gray-300 mb-2">Keyword</label>
+          <input
+            type="text"
+            name="keyword"
+            placeholder="e.g. plumber, restaurant, dentist"
+            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-accent"
+            required
+          >
+        </div>
+        <div class="flex-1 min-w-[150px]">
+          <label class="block text-sm font-medium text-gray-300 mb-2">City</label>
+          <input
+            type="text"
+            name="city"
+            placeholder="e.g. Austin"
+            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-accent"
+            required
+          >
+        </div>
+        <div class="w-32">
+          <label class="block text-sm font-medium text-gray-300 mb-2">State</label>
+          <input
+            type="text"
+            name="state"
+            placeholder="e.g. TX"
+            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-accent"
+            required
+          >
+        </div>
+        <div class="w-32">
+          <label class="block text-sm font-medium text-gray-300 mb-2">Max Results</label>
+          <input
+            type="number"
+            name="maxResults"
+            value="20"
+            min="1"
+            max="100"
+            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-accent"
+          >
+        </div>
+        <button
+          type="submit"
+          id="searchBtn"
+          class="px-6 py-2 bg-accent hover:bg-accent-hover text-white font-medium rounded-lg transition-colors flex items-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <span id="searchBtnText">Search</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading indicator -->
+  <div id="loadingIndicator" class="hidden text-center py-12">
+    <div class="inline-flex items-center gap-3 text-gray-400">
+      <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span>Searching Google Maps... This may take 30-120 seconds.</span>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="text-center py-20">
+    <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-800 rounded-full mb-6">
+      <svg class="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+      </svg>
+    </div>
+    <h2 class="text-xl font-semibold text-gray-300 mb-2">Find Business Leads</h2>
+    <p class="text-gray-500 max-w-md mx-auto">
+      Search for businesses on Google Maps by keyword and location. Results include contact info, ratings, and more.
+    </p>
+  </div>
+</div>
+
+<script>
+  document.getElementById('searchForm').addEventListener('submit', function() {
+    const btn = document.getElementById('searchBtn');
+    const btnText = document.getElementById('searchBtnText');
+    const loading = document.getElementById('loadingIndicator');
+
+    btn.disabled = true;
+    btn.classList.add('opacity-50', 'cursor-not-allowed');
+    btnText.innerHTML = '<svg class="w-5 h-5 animate-spin inline mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Searching...';
+    loading.classList.remove('hidden');
+  });
+</script>
+
+<%- include('partials/footer') %>

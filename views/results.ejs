@@ -1,0 +1,420 @@
+<%- include('partials/header', { page: 'search' }) %>
+
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl font-bold text-white">Search Results</h2>
+      <p class="text-gray-400 mt-1">
+        Found <span class="text-accent font-semibold"><%= results.length %></span> results for
+        "<%= query %>" in <%= location %>
+      </p>
+    </div>
+    <a href="/" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">
+      New Search
+    </a>
+  </div>
+
+  <% if (results.length === 0) { %>
+    <!-- Empty state -->
+    <div class="text-center py-20 bg-gray-800 rounded-lg">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-700 rounded-full mb-4">
+        <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-300 mb-2">No businesses found</h3>
+      <p class="text-gray-500 mb-4">Try adjusting your search terms or location.</p>
+      <a href="/" class="inline-flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        Try Another Search
+      </a>
+    </div>
+  <% } else { %>
+    <!-- Results table -->
+    <div class="bg-gray-800 rounded-lg overflow-hidden">
+      <table class="w-full">
+        <thead class="bg-gray-700">
+          <tr>
+            <th class="px-4 py-3 text-left">
+              <input type="checkbox" id="selectAll" class="rounded bg-gray-600 border-gray-500">
+            </th>
+            <th class="px-4 py-3 text-left text-sm font-medium text-gray-300">Company</th>
+            <th class="px-4 py-3 text-left text-sm font-medium text-gray-300">Phone</th>
+            <th class="px-4 py-3 text-left text-sm font-medium text-gray-300">Website</th>
+            <th class="px-4 py-3 text-left text-sm font-medium text-gray-300">Location</th>
+            <th class="px-4 py-3 text-left text-sm font-medium text-gray-300">Save</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-700">
+          <% results.forEach((result, index) => { %>
+            <tr
+              class="hover:bg-gray-700 cursor-pointer result-row"
+              data-title="<%= result.title %>"
+              data-phone="<%= result.phone %>"
+              data-website="<%= result.website %>"
+              data-email="<%= result.email %>"
+              data-category="<%= result.category %>"
+              data-address="<%= result.address %>"
+              data-city="<%= result.city %>"
+              data-state="<%= result.state %>"
+              data-rating="<%= result.rating %>"
+              data-review-count="<%= result.reviewCount %>"
+              data-url="<%= result.url %>"
+            >
+              <td class="px-4 py-3" onclick="event.stopPropagation()">
+                <input type="checkbox" class="row-checkbox rounded bg-gray-600 border-gray-500">
+              </td>
+              <td class="px-4 py-3">
+                <div class="font-medium text-white"><%= result.title %></div>
+                <div class="text-sm text-gray-400"><%= result.category %></div>
+              </td>
+              <td class="px-4 py-3 text-gray-300"><%= result.phone || '-' %></td>
+              <td class="px-4 py-3">
+                <% if (result.website) { %>
+                  <span class="text-accent truncate block max-w-[200px]"><%= result.website.replace(/^https?:\/\//, '').replace(/\/$/, '') %></span>
+                <% } else { %>
+                  <span class="text-gray-500">-</span>
+                <% } %>
+              </td>
+              <td class="px-4 py-3 text-gray-300"><%= result.city %>, <%= result.state %></td>
+              <td class="px-4 py-3" onclick="event.stopPropagation()">
+                <button class="bookmark-btn text-gray-400 hover:text-accent transition-colors" data-title="<%= result.title %>">
+                  <svg class="w-5 h-5 bookmark-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<!-- Detail Panel -->
+<div id="detailPanel" class="detail-panel fixed right-0 top-0 h-full w-96 bg-gray-800 shadow-2xl z-50 overflow-y-auto">
+  <div class="p-6">
+    <button id="closePanel" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <!-- Avatar -->
+    <div class="flex items-center gap-4 mb-6">
+      <div id="panelAvatar" class="w-16 h-16 bg-accent rounded-full flex items-center justify-center text-2xl font-bold text-white">
+        A
+      </div>
+      <div>
+        <h3 id="panelTitle" class="text-xl font-bold text-white">Company Name</h3>
+        <p id="panelCategory" class="text-gray-400">Category</p>
+      </div>
+    </div>
+
+    <!-- Rating -->
+    <div id="panelRating" class="flex items-center gap-2 mb-6">
+      <div class="flex text-yellow-400">
+        <!-- Stars will be inserted here -->
+      </div>
+      <span class="text-gray-400">(<span id="panelReviewCount">0</span> reviews)</span>
+    </div>
+
+    <!-- Contact Info -->
+    <div class="space-y-4 mb-6">
+      <div id="panelPhoneRow" class="flex items-center gap-3">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+        </svg>
+        <a id="panelPhone" href="#" class="text-accent hover:underline">-</a>
+      </div>
+
+      <div id="panelEmailRow" class="flex items-center gap-3">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+        </svg>
+        <span id="panelEmail" class="text-gray-300">-</span>
+      </div>
+
+      <div class="flex items-start gap-3">
+        <svg class="w-5 h-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+        <span id="panelAddress" class="text-gray-300">-</span>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="space-y-3">
+      <a id="panelWebsiteBtn" href="#" target="_blank" class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+        </svg>
+        Visit Website
+      </a>
+
+      <a id="panelMapsBtn" href="#" target="_blank" class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+        </svg>
+        Google Maps
+      </a>
+
+      <button id="panelSaveBtn" class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+        </svg>
+        <span id="panelSaveBtnText">Save Lead</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Current lead data for the panel
+  let currentLead = null;
+  let savedLeads = {};
+
+  // Load saved leads on page load
+  async function loadSavedLeads() {
+    try {
+      const response = await fetch('/leads/saved');
+      savedLeads = await response.json();
+      updateBookmarkIcons();
+    } catch (e) {
+      console.error('Failed to load saved leads:', e);
+    }
+  }
+
+  // Update bookmark icons based on saved state
+  function updateBookmarkIcons() {
+    document.querySelectorAll('.bookmark-btn').forEach(btn => {
+      const title = btn.dataset.title;
+      const icon = btn.querySelector('.bookmark-icon');
+      if (savedLeads[title]) {
+        icon.setAttribute('fill', 'currentColor');
+        btn.classList.add('text-accent');
+        btn.classList.remove('text-gray-400');
+      } else {
+        icon.setAttribute('fill', 'none');
+        btn.classList.remove('text-accent');
+        btn.classList.add('text-gray-400');
+      }
+    });
+  }
+
+  // Initialize
+  loadSavedLeads();
+
+  // Select all checkbox
+  document.getElementById('selectAll')?.addEventListener('change', function() {
+    document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = this.checked);
+  });
+
+  // Row click to open panel
+  document.querySelectorAll('.result-row').forEach(row => {
+    row.addEventListener('click', function() {
+      currentLead = {
+        title: this.dataset.title,
+        phone: this.dataset.phone,
+        website: this.dataset.website,
+        email: this.dataset.email,
+        category: this.dataset.category,
+        address: this.dataset.address,
+        city: this.dataset.city,
+        state: this.dataset.state,
+        rating: parseFloat(this.dataset.rating) || 0,
+        reviewCount: parseInt(this.dataset.reviewCount) || 0,
+        url: this.dataset.url
+      };
+
+      // Populate panel
+      document.getElementById('panelAvatar').textContent = currentLead.title.charAt(0).toUpperCase();
+      document.getElementById('panelTitle').textContent = currentLead.title;
+      document.getElementById('panelCategory').textContent = currentLead.category || 'Business';
+
+      // Rating stars
+      const ratingDiv = document.getElementById('panelRating').querySelector('.flex');
+      ratingDiv.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        star.setAttribute('class', 'w-5 h-5');
+        star.setAttribute('fill', i <= currentLead.rating ? 'currentColor' : 'none');
+        star.setAttribute('stroke', 'currentColor');
+        star.setAttribute('viewBox', '0 0 24 24');
+        star.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>';
+        ratingDiv.appendChild(star);
+      }
+      document.getElementById('panelReviewCount').textContent = currentLead.reviewCount;
+
+      // Phone
+      const phoneEl = document.getElementById('panelPhone');
+      if (currentLead.phone) {
+        phoneEl.textContent = currentLead.phone;
+        phoneEl.href = 'tel:' + currentLead.phone;
+        document.getElementById('panelPhoneRow').style.display = 'flex';
+      } else {
+        document.getElementById('panelPhoneRow').style.display = 'none';
+      }
+
+      // Email
+      const emailEl = document.getElementById('panelEmail');
+      if (currentLead.email) {
+        emailEl.textContent = currentLead.email;
+        document.getElementById('panelEmailRow').style.display = 'flex';
+      } else {
+        document.getElementById('panelEmailRow').style.display = 'none';
+      }
+
+      // Address
+      document.getElementById('panelAddress').textContent = currentLead.address || `${currentLead.city}, ${currentLead.state}`;
+
+      // Website button
+      const websiteBtn = document.getElementById('panelWebsiteBtn');
+      if (currentLead.website) {
+        websiteBtn.href = currentLead.website;
+        websiteBtn.style.display = 'flex';
+      } else {
+        websiteBtn.style.display = 'none';
+      }
+
+      // Maps button
+      const mapsBtn = document.getElementById('panelMapsBtn');
+      if (currentLead.url) {
+        mapsBtn.href = currentLead.url;
+      } else {
+        mapsBtn.href = `https://www.google.com/maps/search/${encodeURIComponent(currentLead.title + ' ' + currentLead.city + ' ' + currentLead.state)}`;
+      }
+
+      // Update save button state
+      updatePanelSaveButton();
+
+      // Open panel
+      document.getElementById('detailPanel').classList.add('open');
+    });
+  });
+
+  // Update panel save button based on saved state
+  function updatePanelSaveButton() {
+    const btnText = document.getElementById('panelSaveBtnText');
+    const btn = document.getElementById('panelSaveBtn');
+    if (savedLeads[currentLead.title]) {
+      btnText.textContent = 'Saved - Click to Remove';
+      btn.classList.add('bg-accent');
+      btn.classList.remove('bg-gray-700');
+    } else {
+      btnText.textContent = 'Save Lead';
+      btn.classList.remove('bg-accent');
+      btn.classList.add('bg-gray-700');
+    }
+  }
+
+  // Close panel
+  document.getElementById('closePanel').addEventListener('click', function() {
+    document.getElementById('detailPanel').classList.remove('open');
+  });
+
+  // Bookmark button click
+  document.querySelectorAll('.bookmark-btn').forEach(btn => {
+    btn.addEventListener('click', async function(e) {
+      e.stopPropagation();
+      const title = this.dataset.title;
+      const row = this.closest('.result-row');
+
+      if (savedLeads[title]) {
+        // Unsave
+        try {
+          await fetch('/leads/delete-by-title', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title })
+          });
+          delete savedLeads[title];
+          updateBookmarkIcons();
+          if (currentLead && currentLead.title === title) {
+            updatePanelSaveButton();
+          }
+        } catch (e) {
+          console.error('Failed to unsave lead:', e);
+        }
+      } else {
+        // Save
+        const lead = {
+          title: row.dataset.title,
+          phone: row.dataset.phone,
+          website: row.dataset.website,
+          email: row.dataset.email,
+          category: row.dataset.category,
+          address: row.dataset.address,
+          city: row.dataset.city,
+          state: row.dataset.state,
+          rating: row.dataset.rating,
+          reviewCount: row.dataset.reviewCount,
+          url: row.dataset.url
+        };
+
+        try {
+          const response = await fetch('/leads/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(lead)
+          });
+          const data = await response.json();
+          if (data.success) {
+            savedLeads[title] = data.key;
+            updateBookmarkIcons();
+            if (currentLead && currentLead.title === title) {
+              updatePanelSaveButton();
+            }
+          }
+        } catch (e) {
+          console.error('Failed to save lead:', e);
+        }
+      }
+    });
+  });
+
+  // Panel save button click
+  document.getElementById('panelSaveBtn').addEventListener('click', async function() {
+    if (!currentLead) return;
+
+    if (savedLeads[currentLead.title]) {
+      // Unsave
+      try {
+        await fetch('/leads/delete-by-title', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: currentLead.title })
+        });
+        delete savedLeads[currentLead.title];
+        updateBookmarkIcons();
+        updatePanelSaveButton();
+      } catch (e) {
+        console.error('Failed to unsave lead:', e);
+      }
+    } else {
+      // Save
+      try {
+        const response = await fetch('/leads/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(currentLead)
+        });
+        const data = await response.json();
+        if (data.success) {
+          savedLeads[currentLead.title] = data.key;
+          updateBookmarkIcons();
+          updatePanelSaveButton();
+        }
+      } catch (e) {
+        console.error('Failed to save lead:', e);
+      }
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>
